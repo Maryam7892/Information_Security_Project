@@ -2,3 +2,4 @@ Flask
 flask-talisman
 python-dotenv
 pqcrypto
+kyber-py

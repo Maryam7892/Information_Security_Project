@@ -2,76 +2,98 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PQC Web App - Kyber512</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Tailwind CSS local -->
+    <link href="{{ url_for('static', filename='css/tailwind.min.css') }}" rel="stylesheet">
+
+    <script>
+        // Function to copy text to clipboard
+        function copyToClipboard(elementId) {
+            var copyText = document.getElementById(elementId);
+            copyText.select();
+            document.execCommand("copy");
+
+            // Feedback to user
+            alert("Copied to clipboard: " + copyText.value);
+        }
+    </script>
 </head>
-<body class="bg-light">
+<body class="bg-gray-100">
 
-<div class="container mt-5">
-    <h1 class="text-center mb-4">🔐 Post-Quantum Cryptography Web App</h1>
+<div class="max-w-3xl mx-auto py-10 px-4">
+    <h1 class="text-3xl font-bold text-center mb-10">🔐 Post-Quantum Crypto Web App</h1>
 
-    <!-- Key Generation -->
-    <div class="card mb-4">
-        <div class="card-header">1. Generate Key Pair (Kyber512)</div>
-        <div class="card-body">
+    <!-- 1. Key Generation -->
+    <div class="bg-white rounded shadow mb-6">
+        <div class="bg-blue-600 text-white text-lg font-semibold px-4 py-2 rounded-t">1. Generate Key Pair</div>
+        <div class="p-4">
             <form action="/generate_keys" method="post">
-                <button type="submit" class="btn btn-primary">Generate Keys</button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">Generate Keys</button>
             </form>
             {% if public_key and private_key %}
+                <div class="mt-4">
+                    <label for="publicKey" class="block mb-1 text-sm font-medium">Public Key (hex)</label>
+                    <div class="flex items-center">
+                        <textarea id="publicKey" class="w-full p-2 border rounded h-24 resize-none" readonly>{{ public_key }}</textarea>
+                        <button type="button" class="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded" onclick="copyToClipboard('publicKey')">Copy</button>
+                    </div>
+                </div>
                 <div class="mt-3">
-                    <label><strong>Public Key:</strong></label>
-                    <textarea class="form-control" rows="3" readonly>{{ public_key }}</textarea>
-
-                    <label class="mt-2"><strong>Private Key:</strong></label>
-                    <textarea class="form-control" rows="3" readonly>{{ private_key }}</textarea>
+                    <label for="privateKey" class="block mb-1 text-sm font-medium">Private Key (hex)</label>
+                    <div class="flex items-center">
+                        <textarea id="privateKey" class="w-full p-2 border rounded h-24 resize-none" readonly>{{ private_key }}</textarea>
+                        <button type="button" class="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded" onclick="copyToClipboard('privateKey')">Copy</button>
+                    </div>
                 </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Encryption -->
-    <div class="card mb-4">
-        <div class="card-header">2. Encrypt Message</div>
-        <div class="card-body">
+    <!-- 2. Encryption -->
+    <div class="bg-white rounded shadow mb-6">
+        <div class="bg-green-600 text-white text-lg font-semibold px-4 py-2 rounded-t">2. Encrypt Message</div>
+        <div class="p-4">
             <form action="/encrypt" method="post">
-                <div class="mb-3">
-                    <label>Message (string input just for demonstration)</label>
-                    <input type="text" name="message" class="form-control" required>
+                <div class="mb-4">
+                    <label for="messageInput" class="block mb-1 text-sm font-medium">Message (for demo)</label>
+                    <input type="text" name="message" id="messageInput" required class="w-full p-2 border rounded" placeholder="Enter a message">
                 </div>
-                <div class="mb-3">
-                    <label>Public Key</label>
-                    <textarea name="public_key" class="form-control" rows="3" required>{{ public_key or '' }}</textarea>
+                <div class="mb-4">
+                    <label for="encryptPublicKey" class="block mb-1 text-sm font-medium">Public Key (hex)</label>
+                    <textarea name="public_key" id="encryptPublicKey" required class="w-full p-2 border rounded h-24 resize-none">{{ public_key or '' }}</textarea>
                 </div>
-                <button type="submit" class="btn btn-success">Encrypt</button>
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">Encrypt</button>
             </form>
             {% if ciphertext %}
-                <div class="mt-3">
-                    <label><strong>Encrypted Ciphertext:</strong></label>
-                    <textarea class="form-control" rows="3" readonly>{{ ciphertext }}</textarea>
+                <div class="mt-4">
+                    <label class="block mb-1 text-sm font-medium">Encrypted Ciphertext (hex)</label>
+                    <textarea class="w-full p-2 border rounded h-24 resize-none" readonly>{{ ciphertext }}</textarea>
                 </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Decryption -->
-    <div class="card mb-4">
-        <div class="card-header">3. Decrypt Ciphertext</div>
-        <div class="card-body">
+    <!-- 3. Decryption -->
+    <div class="bg-white rounded shadow mb-6">
+        <div class="bg-yellow-600 text-black text-lg font-semibold px-4 py-2 rounded-t">3. Decrypt Ciphertext</div>
+        <div class="p-4">
             <form action="/decrypt" method="post">
-                <div class="mb-3">
-                    <label>Ciphertext</label>
-                    <textarea name="ciphertext" class="form-control" rows="3" required>{{ ciphertext or '' }}</textarea>
+                <div class="mb-4">
+                    <label for="cipherInput" class="block mb-1 text-sm font-medium">Ciphertext (hex)</label>
+                    <textarea name="ciphertext" id="cipherInput" required class="w-full p-2 border rounded h-24 resize-none">{{ ciphertext or '' }}</textarea>
                 </div>
-                <div class="mb-3">
-                    <label>Private Key</label>
-                    <textarea name="private_key" class="form-control" rows="3" required>{{ private_key or '' }}</textarea>
+                <div class="mb-4">
+                    <label for="decryptPrivateKey" class="block mb-1 text-sm font-medium">Private Key (hex)</label>
+                    <textarea name="private_key" id="decryptPrivateKey" required class="w-full p-2 border rounded h-24 resize-none">{{ private_key or '' }}</textarea>
                 </div>
-                <button type="submit" class="btn btn-warning">Decrypt</button>
+                <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-black font-medium py-2 px-4 rounded">Decrypt</button>
             </form>
             {% if decrypted %}
-                <div class="mt-3">
-                    <label><strong>Decrypted Shared Secret:</strong></label>
-                    <textarea class="form-control" rows="2" readonly>{{ decrypted }}</textarea>
+                <div class="mt-4">
+                    <label class="block mb-1 text-sm font-medium">Decrypted Shared Secret (hex)</label>
+                    <textarea class="w-full p-2 border rounded h-20 resize-none" readonly>{{ decrypted }}</textarea>
                 </div>
             {% endif %}
         </div>
