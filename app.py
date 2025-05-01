@@ -23,6 +23,9 @@ def handle_keygen():
     # Render the page with the new public and private keys
     return render_template('index.html', public_key=public_key.hex(), private_key=private_key.hex())
 
+# Encrypts the user-submitted message using the provided public key,
+#  or it will fallback to the globally stored public key if none provided.
+
 @app.route('/encrypt', methods=['POST'])
 def handle_encrypt():
     message = request.form['message']
@@ -33,20 +36,8 @@ def handle_encrypt():
     ciphertext = encrypt_message(message, public_key_input)
     return render_template('index.html', ciphertext=ciphertext.hex(), public_key=request.form['public_key'], private_key=private_key.hex())
 
-@app.route('/decrypt', methods=['POST'])
-def handle_decrypt():
-    ciphertext = bytes.fromhex(request.form['ciphertext'])
-    
-    # Use provided private_key if it exists, otherwise use global private_key
-    private_key_input = bytes.fromhex(request.form['private_key']) if request.form.get('private_key') else private_key
-    
-    decrypted = decrypt_message(ciphertext, private_key_input)
-
-    # If decrypted is a string, pass it directly, otherwise convert to hex
-    if isinstance(decrypted, bytes):
-        decrypted = decrypted.hex()  # Convert to hex if it's in bytes
-
-    return render_template('index.html', decrypted=decrypted, private_key=request.form['private_key'] if request.form.get('private_key') else private_key.hex(), public_key=public_key.hex())
+# Decrypts the submitted ciphertext using the provided private key,
+#     or it will fallback to the globally stored private key if none provided.
 
 @app.route('/decrypt', methods=['POST'])
 def handle_decrypt():
