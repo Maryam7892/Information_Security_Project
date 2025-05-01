@@ -48,5 +48,22 @@ def handle_decrypt():
 
     return render_template('index.html', decrypted=decrypted, private_key=request.form['private_key'] if request.form.get('private_key') else private_key.hex(), public_key=public_key.hex())
 
+@app.route('/decrypt', methods=['POST'])
+def handle_decrypt():
+    ciphertext = bytes.fromhex(request.form['ciphertext'])
+    
+    # Use provided private_key if it exists, otherwise use global private_key
+    private_key_input = bytes.fromhex(request.form['private_key']) if request.form.get('private_key') else private_key
+    
+    decrypted = decrypt_message(ciphertext, private_key_input)
+
+    # If decrypted is a string, pass it directly, otherwise convert to hex
+    if isinstance(decrypted, bytes):
+        decrypted = decrypted.hex()  # Convert to hex if it's in bytes
+
+    return render_template('index.html', decrypted=decrypted, private_key=request.form['private_key'] if request.form.get('private_key') else private_key.hex(), public_key=public_key.hex())
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
